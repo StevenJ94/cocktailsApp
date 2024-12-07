@@ -1,7 +1,12 @@
-.card {
-    -webkit-box-shadow: 0px 0px 15px -10px rgba(0,0,0,0.75);
--moz-box-shadow: 0px 0px 15px -10px rgba(0,0,0,0.75);
-box-shadow: 0px 0px 15px -10px rgba(0,0,0,0.75);
+.fondo {
+    background-image: url('../../assets//img/cocteles.png');
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
 
+.change {
+    right: 0;
+    bottom: 0;
 }
 
