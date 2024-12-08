@@ -1,0 +1,13 @@
+.navbar {
+    background-color: #BCCCDC;
+    font-size: 16px;
+    border-bottom: 1px solid #5c95ce81;
+}
+
+.sidebar-web {
+    height: 100vh;
+    background-color: #9AA6B2;
+    -webkit-box-shadow: 2px 0px 25px 1px rgba(168,168,168,1);
+-moz-box-shadow: 2px 0px 25px 1px rgba(168,168,168,1);
+box-shadow: 2px 0px 25px 1px rgba(168,168,168,1);
+}

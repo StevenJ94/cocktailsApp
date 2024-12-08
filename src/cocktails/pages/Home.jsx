@@ -1,16 +1,27 @@
+import { useEffect, useState } from 'react';
+import { Outlet } from "react-router";
+
 import logo from '../../assets/img/logo.png'
+
+import '../styles/cocktailsStyle.css'
+
+
+
 import appFirebase from '../../credenciales'
 
 import { getAuth, signOut } from 'firebase/auth'
 
 const auth = getAuth(appFirebase);
 
+
 export const Home = ({correoUsuario}) => {
+
+  
   return (
     <>
     <div className="contenedor">
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
-  <div className="container-fluid">
+    <nav className="navbar navbar-expand-lg ">
+  <div className="container-fluid mx-md-5">
   <img src={logo} alt="" width={70}/>
 
     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +51,11 @@ export const Home = ({correoUsuario}) => {
       </form>
     </div>
   </div>
-</nav>
+    </nav>
+    <div className="">
+    <Outlet />
+    </div>
+
     </div>
     </>
   )

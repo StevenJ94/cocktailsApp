@@ -1,6 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+
 import { Home } from "../cocktails/pages/Home";
+import { Lista } from "../cocktails/pages/Lista";
+import { Detalles } from "../cocktails/pages/Detalles";
+
 import { Login } from "../auth/pages/Login";
+
 
 // Importar Firebase y herramientas necesarias
 //@ts-ignore
@@ -50,13 +55,16 @@ export const AppRouter = () => {
         <Route
           path="/"
           element={user ? <Home correoUsuario={user.email} nombreUsuario={user.displayName} /> : <Navigate to="/login" replace />}
-        />
-
+        >
+          <Route path='/' element={<Lista />} />
+          <Route path='detalles' element={<Detalles />} />
+        </Route>
         {/* Ruta para Login */}
         <Route
           path="/login"
           element={user ? <Navigate to="/" replace /> : <Login />}
         />
+
 
         {/* Redirección de rutas no definidas */}
         <Route
