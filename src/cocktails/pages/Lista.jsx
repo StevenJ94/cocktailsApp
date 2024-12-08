@@ -8,11 +8,39 @@ import { CardProduct } from '../components/cardProduct';
 
 
 export const Lista = () => {
+  /**
+   * Variables de los lisados iniciales (Randoms)
+   */
   const [listPopularsCocktails, setlistPopularsCocktails] = useState(null);
   const [listRandomsCocktails, setlistRandomsCocktails] = useState(null);
   const [listPopularsIngredients, setlistPopularsIngredients] = useState(null);
   const [listRandomsIngredients, setlistRandomsIngredients] = useState(null);
+
+  /**
+   * Variable para el listado cuando se filtran
+   */
+  const [listItemsFilters, setlistItemsFilters] = useState(null);
+
+
+  /**
+   * Variables de los array para que se usen en los filtros
+   */
+  const [arrayCategoriasPadre, setarrayCategorias] = useState(null);
+  const [arrayVasosPadre, setarrayVasos] = useState(null);
+  const [arrayIngredientesPadre, setarrayIngredientes] = useState(null);
+  const [arrayAlcoholPadre, setarrayAlcohol] = useState(null);  
+  
+
+
+
+  /**
+   * Variable de loading
+   */
   const [loading, setLoading] = useState(true);
+  
+  /**
+   * En caso de error
+   */
   const [error, setError] = useState(null);
 
 /**
@@ -25,15 +53,18 @@ const getDataCocktails = async () => {
     let arrayCocktailsRandom = []
     let arrayIngredientPopular = []
     let arrayIngredientRandom = []
-    for (let i = 0; i < 4; i++) {
-      const responsePopularCocktails = await axiosInstance.get('api/json/v1/1/random.php');
-      const responseRandomCocktails = await axiosInstance.get('api/json/v1/1/random.php');
-      const responsePopularInredients = await axiosInstance.get(`api/json/v1/1/lookup.php?iid=${Math.floor(Math.random() * 50)}`);
-      const responseRandomIngredients = await axiosInstance.get(`api/json/v1/1/lookup.php?iid=${Math.floor(Math.random() * 50)}`);
-      arrayCocktailsPopular.push(responsePopularCocktails.data.drinks[0])
-      arrayCocktailsRandom.push(responseRandomCocktails.data.drinks[0])
-      arrayIngredientPopular.push(responsePopularInredients.data.ingredients[0])
-      arrayIngredientRandom.push(responseRandomIngredients.data.ingredients[0])
+    for (let i = 0; i < 8; i++) {
+      const responseCocktails = await axiosInstance.get('random.php');
+      const responseInredients = await axiosInstance.get(`lookup.php?iid=${Math.floor(Math.random() * 50)}`);
+      // Hago una validación para cuando sean 4 productos, los divido, para llamar menos veces la ruta ya que se está usando la random
+      if (i < 4) {
+        arrayCocktailsPopular.push(responseCocktails.data.drinks[0])
+        arrayIngredientPopular.push(responseInredients.data.ingredients[0])
+      } else {
+        arrayCocktailsRandom.push(responseCocktails.data.drinks[0])
+        arrayIngredientRandom.push(responseInredients.data.ingredients[0])
+        
+      }
     }
     // console.log(arrayCocktails);
     setlistPopularsCocktails(arrayCocktailsPopular);
@@ -47,7 +78,21 @@ const getDataCocktails = async () => {
   }
 };
 
+const getArrayFiltros = async () => {
+  const categorias = await axiosInstance.get('list.php?c=list');
+  const vasos = await axiosInstance.get('list.php?g=list');
+  const ingredientes = await axiosInstance.get('list.php?i=list');
+  const alcohol = await axiosInstance.get('list.php?a=list');
+  if (categorias && vasos && ingredientes && alcohol) {
+    setarrayCategorias(categorias.data.drinks)
+    setarrayVasos(vasos.data.drinks)
+    setarrayIngredientes(ingredientes.data.drinks)
+    setarrayAlcohol(alcohol.data.drinks)
+  }
+}
+
 useEffect(() => {
+  getArrayFiltros();
   getDataCocktails();
 }, []);
 
@@ -79,7 +124,7 @@ if (loading) {
   return (
     <div className='d-flex p-0 m-0'>
      <div className='sidebar-web col-xl-2 col-lg-3 d-lg-block d-none shadow-lg'>
-      <Filtros />
+      <Filtros arrayCategorias={arrayCategoriasPadre} arrayVasos={arrayVasosPadre} arraryIngredientes={arrayIngredientesPadre} arrayAlcohol={arrayAlcoholPadre}/>
      </div>
     <div className="container m-4 col-sm">
     <div className="cocteles-populares">
