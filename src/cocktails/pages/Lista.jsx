@@ -27,7 +27,7 @@ export const Lista = () => {
       
     } else if (window.matchMedia('(min-width: 769px) and (max-width: 1200px)').matches) {
       // Para laptops (769px a 1200px)
-      setItemsPerPage(6);
+      setItemsPerPage(4);
     } 
   };
 
@@ -235,6 +235,20 @@ if (loading) {
         <Filtros arrayCategorias={arrayCategoriasPadre} arrayVasos={arrayVasosPadre} arraryIngredientes={arrayIngredientesPadre} arrayAlcohol={arrayAlcoholPadre}/>
        </div>
       <div className="my-5 w-100 px-md-5 px-0 contenedor-lista">
+        <div className="d-lg-none d-block">
+        <button class="btn btn-primary mb-4 mx-lg-0 mx-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+ Filtros
+</button>
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Filtros</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+  <Filtros arrayCategorias={arrayCategoriasPadre} arrayVasos={arrayVasosPadre} arraryIngredientes={arrayIngredientesPadre} arrayAlcohol={arrayAlcoholPadre}/>
+  </div>
+</div>
+        </div>
         { listDatosFiltrados &&   
       <div className="cocteles-filtrados mx-md-0 mx-4">
       <h1 className="mb-2">Resultado de filtros</h1>

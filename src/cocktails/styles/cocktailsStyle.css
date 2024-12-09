@@ -122,7 +122,13 @@ height: 100%
     border-left: 1px solid #a8a8a8;
 }
 
-/* Lisa */
+/* offCanvas */
+.offcanvas {
+    background-color: #9AA6B2;
+    opacity: 1;
+} 
+
+/* botones de la paginación*/
 .next, .previous {
     display: none;
 }

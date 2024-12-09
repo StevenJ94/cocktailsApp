@@ -34,7 +34,7 @@ export const Detalles = () => {
      updateItemsPerPage(); // Actualiza al cargar la página
      window.addEventListener('resize', updateItemsPerPage); // Actualiza al redimensionar
      return () => {
-       window.removeEventListener('resize', updateItemsPerPage); // Limpieza del evento
+       window.removeEventListener('resize', updateItemsPerPage); // Limpia el evento
      };
    }, [itemOffset, itemsPerPage]);
 
