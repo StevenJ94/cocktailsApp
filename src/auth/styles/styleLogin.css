@@ -1,0 +1,12 @@
+.fondo {
+    background-image: url('../../assets//img/cocteles.png');
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.change {
+    right: 0;
+    bottom: 0;
+}
+
