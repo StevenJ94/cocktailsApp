@@ -1,15 +1,23 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router'
 import React from 'react'
+import ReactPaginate from 'react-paginate';
 
 import axiosInstance from '../../axiosInstance'
 
 import { Filtros } from '../components/Filtros';
 import { CardProduct } from '../components/cardProduct';
-import { useSearchParams } from 'react-router'
 
 
 export const Lista = () => {
+  let initNoRepeat = 0
+
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const [currentItems, setCurrentItems] = useState([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [itemOffset, setItemOffset] = useState(0);
+  const itemsPerPage = 4; // Definimos items por página
 
   /**
    * Variable para guardar el listado de datos filtrados
@@ -24,9 +32,11 @@ export const Lista = () => {
   const ingrediente = searchParams.get('ingrediente');
   const alcohol = searchParams.get('alcohol');
 
-const getDatosFiltrados = async () => {
+/**
+ * Obtener datos filtrados
+ */
+  const getDatosFiltrados = async () => {
   if (categoria || vaso || ingrediente || alcohol) {
-    
     const params = `${
     (categoria ? `?c=${categoria}` : '') +
     (vaso ? `${categoria ? '&' : '?'}g=${vaso}` : '') +
@@ -37,16 +47,33 @@ const getDatosFiltrados = async () => {
       `filter.php${params}`
     );
     setlistDatosFiltrados(listaFiltados.data.drinks)
+  } else {
+    setlistDatosFiltrados(null)
   }
 }
 
+useEffect(() => {
+  getDatosFiltrados();
+}, [categoria, vaso, ingrediente, alcohol]);
 
+  /**
+   * Paginar
+   */
   useEffect(() => {
-    getDatosFiltrados();
-  }, [categoria, vaso, ingrediente, alcohol]);
+    if (listDatosFiltrados && listDatosFiltrados.length > 0) {
+      const endOffset = itemOffset + itemsPerPage;
+      setCurrentItems(listDatosFiltrados.slice(itemOffset, endOffset));
+      setPageCount(Math.ceil(listDatosFiltrados.length / itemsPerPage));
+    }  else {
+      setCurrentItems([]); 
+      setPageCount(0);  // Resetea el número de páginas
+    }
+  }, [itemOffset, itemsPerPage, listDatosFiltrados]);
 
-  useEffect(() => {
-  }, [listDatosFiltrados]);
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * itemsPerPage) % listDatosFiltrados.length;
+    setItemOffset(newOffset);
+  };
 
   /**
    * Variables de los lisados iniciales (Randoms)
@@ -80,34 +107,31 @@ const getDatosFiltrados = async () => {
   const getDataCocktails = async () => {
     setLoading(true)
     try {
-      let arrayCocktailsPopular = []
-      let arrayCocktailsRandom = []
-      let arrayIngredientPopular = []
-      let arrayIngredientRandom = []
-      for (let i = 0; i < 8; i++) {
-        const responseCocktails = await axiosInstance.get('random.php');
-        const responseInredients = await axiosInstance.get(`lookup.php?iid=${Math.floor(Math.random() * 50)}`);
-        // Hago una validación para cuando sean 4 productos, los divido, para llamar menos veces la ruta ya que se está usando la random
-        if (i < 4) {
-          arrayCocktailsPopular.push(responseCocktails.data.drinks[0])
-          arrayIngredientPopular.push(responseInredients.data.ingredients[0])
-        } else {
-          arrayCocktailsRandom.push(responseCocktails.data.drinks[0])
-          arrayIngredientRandom.push(responseInredients.data.ingredients[0])
-          
-        }
-      }
-      // console.log(arrayCocktails);
-      setlistPopularsCocktails(arrayCocktailsPopular);
-      setlistRandomsCocktails(arrayCocktailsRandom);
-      setlistPopularsIngredients(arrayIngredientPopular);
-      setlistRandomsIngredients(arrayIngredientRandom);
+      const cocktailRequests = Array.from({ length: 8 }, () => axiosInstance.get('random.php'));
+      const ingredientRequests = Array.from({ length: 8 }, () =>
+      axiosInstance.get(`lookup.php?iid=${Math.floor(Math.random() * 50)}`)
+      );
+      const cocktailResponses = await Promise.all(cocktailRequests);
+      const ingredientResponses = await Promise.all(ingredientRequests);
+      await enviarDatosLista(cocktailResponses, ingredientResponses)
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
     }
   };
+
+  const enviarDatosLista = async (_cocktailResponses, _ingredientResponses) => {
+    console.log(_cocktailResponses);
+    console.log(_ingredientResponses);
+    const arrayCocktailsPopular = await _cocktailResponses.slice(0, 4).map((res) => res.data.drinks[0]);
+    const arrayCocktailsRandom = await _cocktailResponses.slice(4).map((res) => res.data.drinks[0]);
+    const arrayIngredientPopular = await _ingredientResponses.slice(0, 4).map((res) => res.data.ingredients[0]);
+    const arrayIngredientRandom = await _ingredientResponses.slice(4).map((res) => res.data.ingredients[0]);
+    setlistPopularsCocktails(arrayCocktailsPopular);
+    setlistRandomsCocktails(arrayCocktailsRandom);
+    setlistPopularsIngredients(arrayIngredientPopular);
+    setlistRandomsIngredients(arrayIngredientRandom);
+  }
 
  /**
   * Función para obtener los valores de los filtros de las rutas */ 
@@ -124,17 +148,35 @@ const getDatosFiltrados = async () => {
     }
 }
 
+
+
 useEffect(() => {
   getArrayFiltros();
   getDataCocktails();
 }, []);
 
-// Escuchar cambios en listPopularsCocktails
-  useEffect(() => {
-    if (listPopularsCocktails) {
-      setLoading(false)
-    }
-  }, [listPopularsCocktails]); // Este useEffect solo se ejecuta cuando listPopularsCocktails cambia
+/*
+ Escuchar cambios en listPopularsCocktails 
+*/
+useEffect(() => {
+  // console.log(listPopularsCocktails);
+  // console.log(listRandomsCocktails);
+  // console.log(listPopularsIngredients);
+  // console.log(listRandomsIngredients);
+  if (
+    listPopularsCocktails &&
+    listRandomsCocktails &&
+    listPopularsIngredients &&
+    listRandomsIngredients
+  ) {
+    setLoading(false);
+  }
+}, [
+  listPopularsCocktails,
+  listRandomsCocktails,
+  listPopularsIngredients,
+  listRandomsIngredients,
+]);
 
 // Esto es para mostrar mientras carga la petición del firebase
 if (loading) {
@@ -150,103 +192,120 @@ if (loading) {
     </div>;
 }
 
-  return (
-    <div className='d-flex p-0 m-0 contenedor-padre'>
-     <div className='sidebar-web col-xl-2 col-lg-3 d-lg-block d-none shadow-lg'>
-      <Filtros arrayCategorias={arrayCategoriasPadre} arrayVasos={arrayVasosPadre} arraryIngredientes={arrayIngredientesPadre} arrayAlcohol={arrayAlcoholPadre}/>
-     </div>
-    <div className="my-5 w-100 px-md-5 px-0 contenedor-lista">
-      { listDatosFiltrados &&   
-    <div className="cocteles-filtrados mx-md-0 mx-4">
-    <h1 className="mb-2">Resultado de filtros</h1>
-    <hr />
-    <div className="row">
-      { listDatosFiltrados.length > 0 && listDatosFiltrados.map((cocktail, index) => (
-          <div className="col-md-3 mb-4" key={index}>
-            <CardProduct
-              title={cocktail.strDrink}
-              image={cocktail.strDrinkThumb}
-              description={cocktail.strInstructions}
-              tipo={'c'}
-            />
-          </div>
-        ))}
-        {
-          listDatosFiltrados.length == 0 &&
-          <h3 className="mb-2 text-muted">No hubo resultados</h3>
+    return (
+      <div className='d-flex p-0 m-0 contenedor-padre'>
+       <div className='sidebar-web col-xl-2 col-lg-3 d-lg-block d-none shadow-lg'>
+        <Filtros arrayCategorias={arrayCategoriasPadre} arrayVasos={arrayVasosPadre} arraryIngredientes={arrayIngredientesPadre} arrayAlcohol={arrayAlcoholPadre}/>
+       </div>
+      <div className="my-5 w-100 px-md-5 px-0 contenedor-lista">
+        { listDatosFiltrados &&   
+      <div className="cocteles-filtrados mx-md-0 mx-4">
+      <h1 className="mb-2">Resultado de filtros</h1>
+      <hr />
+      <div className="row">
+        {  currentItems.map((cocktail, index) => (
+            <div className="col-md-3 mb-4 d-flex justify-content-center" key={index}>
+              <CardProduct
+                title={cocktail.strDrink}
+                image={cocktail.strDrinkThumb}
+                description={cocktail.strInstructions}
+                tipo={'i'}
+                id={cocktail.idDrink}
+              />
+            </div>
+          ))}
+          { listDatosFiltrados.length > 0 &&
+                <ReactPaginate
+          breakLabel="..."
+          nextLabel="Siguiente >"
+          onPageChange={handlePageClick}
+          pageRangeDisplayed={4}
+          pageCount={pageCount}
+          previousLabel="< Anterior"
+          renderOnZeroPageCount={null}
+          className='estilos-paginacion'
+        />
+          }
+          {
+            listDatosFiltrados.length == 0 &&
+            <h3 className="mb-5 text-muted w-100 text-center">No hay resultados</h3>
+          }
+      </div>
+      </div>
         }
+      <div className="cocteles-populares mx-md-0 mx-4">
+      <h1 className="mb-2">Cócteles Populares</h1>
+      <hr />
+      <div className="row">
+        {listPopularsCocktails &&
+          listPopularsCocktails.map((cocktail, index) => (
+            <div className="col-md-3 mb-4 d-flex justify-content-center" key={index}>
+              <CardProduct
+                title={cocktail.strDrink}
+                image={cocktail.strDrinkThumb}
+                description={cocktail.strInstructions}
+                tipo={'i'}
+                id={cocktail.idDrink}
+              />
+            </div>
+          ))}
+      </div>
+      </div>
+      <div className="cocteles-randoms mx-md-0 mx-4">
+      <h1 className="mb-2">Cócteles aleatorios</h1>
+      <hr />
+      <div className="row ">
+        {listRandomsCocktails &&
+          listRandomsCocktails.map((cocktail, index) => (
+            <div className="col-md-3 mb-4 d-flex justify-content-center" key={index}>
+              <CardProduct
+                title={cocktail.strDrink}
+                image={cocktail.strDrinkThumb}
+                description={cocktail.strInstructions}
+                tipo={'i'}
+                id={cocktail.idDrink}
+              />
+            </div>
+          ))}
+      </div>
+      </div>
+      <div className="ingredientes-populares mx-md-0 mx-4">
+      <h1 className="mb-2">Ingredientes Populares</h1>
+      <hr />
+      <div className="row ">
+        {listPopularsIngredients &&
+          listPopularsIngredients.map((ingredient, index) => (
+            <div className="col-md-3 mb-4 d-flex justify-content-center" key={index}>
+              <CardProduct
+                title={ingredient.strIngredient}
+                image={ingredient.strIngredient}
+                description={ingredient.strDescription}
+                tipo={'iid'}
+                id={ingredient.idIngredient}
+              />
+            </div>
+          ))}
+      </div>
+      </div>
+      <div className="ingredientes-randoms mx-md-0 mx-4">
+      <h1 className="mb-2">Igredientes aleatorios</h1>
+      <hr />
+      <div className="row ">
+        {listRandomsIngredients &&
+          listRandomsIngredients.map((ingredient, index) => (
+            <div className="col-md-3 mb-4 d-flex justify-content-center" key={index}>
+              <CardProduct
+                title={ingredient.strIngredient}
+                image={ingredient.strIngredient}
+                description={ingredient.strDescription}
+                tipo={'iid'}
+                id={ingredient.idIngredient}
+              />
+            </div>
+          ))}
+      </div>
+      </div>
     </div>
-    </div>
-      }
-    <div className="cocteles-populares mx-md-0 mx-4">
-    <h1 className="mb-2">Cócteles Populares</h1>
-    <hr />
-    <div className="row">
-      {listPopularsCocktails &&
-        listPopularsCocktails.map((cocktail, index) => (
-          <div className="col-md-3 mb-4" key={index}>
-            <CardProduct
-              title={cocktail.strDrink}
-              image={cocktail.strDrinkThumb}
-              description={cocktail.strInstructions}
-              tipo={'c'}
-            />
-          </div>
-        ))}
-    </div>
-    </div>
-    <div className="cocteles-randoms mx-md-0 mx-4">
-    <h1 className="mb-2">Cócteles aleatorios</h1>
-    <hr />
-    <div className="row ">
-      {listRandomsCocktails &&
-        listRandomsCocktails.map((cocktail, index) => (
-          <div className="col-md-3 mb-4" key={index}>
-            <CardProduct
-              title={cocktail.strDrink}
-              image={cocktail.strDrinkThumb}
-              description={cocktail.strInstructions}
-              tipo={'c'}
-            />
-          </div>
-        ))}
-    </div>
-    </div>
-    <div className="ingredientes-populares mx-md-0 mx-4">
-    <h1 className="mb-2">Ingredientes Populares</h1>
-    <hr />
-    <div className="row ">
-      {listPopularsIngredients &&
-        listPopularsIngredients.map((ingredient, index) => (
-          <div className="col-md-3 mb-4" key={index}>
-            <CardProduct
-              title={ingredient.strIngredient}
-              image={ingredient.strIngredient}
-              description={ingredient.strDescription}
-              tipo={'i'}
-            />
-          </div>
-        ))}
-    </div>
-    </div>
-    <div className="ingredientes-randoms mx-md-0 mx-4">
-    <h1 className="mb-2">Igredientes aleatorios</h1>
-    <hr />
-    <div className="row ">
-      {listRandomsIngredients &&
-        listRandomsIngredients.map((ingredient, index) => (
-          <div className="col-md-3 mb-4" key={index}>
-            <CardProduct
-              title={ingredient.strIngredient}
-              image={ingredient.strIngredient}
-              description={ingredient.strDescription}
-              tipo={'i'}
-            />
-          </div>
-        ))}
-    </div>
-    </div>
-  </div>
-    </div>
-  )
+      </div>
+    )
 }

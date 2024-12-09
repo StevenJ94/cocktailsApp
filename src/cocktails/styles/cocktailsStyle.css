@@ -8,7 +8,7 @@ Home
 }
 
 .sidebar-web {
-    height: 100vh;
+    
     background-color: #9AA6B2;
     -webkit-box-shadow: 2px 0px 25px 1px rgba(168,168,168,1);
 -moz-box-shadow: 2px 0px 25px 1px rgba(168,168,168,1);
@@ -23,7 +23,7 @@ form .css-b62m3t-container {
 Lista
 */
 .contenedor-padre {
-    max-height: 100vh;
+   
 }
 
 .contenedor-lista {
@@ -32,20 +32,56 @@ Lista
     margin-bottom: 40px;
 }
 
+.estilos-paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    transition: 0.3s;
+  }
+  
+  .estilos-paginacion li {
+    margin: 0 5px;
+    cursor: pointer;
+  }
+  
+  .estilos-paginacion li a {
+    padding: 10px 15px;
+    border: 1px solid #5c95ce81;
+    border-radius: 4px;
+    color: #000;
+    text-decoration: none;
+  }
+  
+  .estilos-paginacion li a:hover {
+    background-color: #5c95ce81;
+    color: #fff;
+    transition: 0.3;
+  }
+  
+  .estilos-paginacion .selected   a {
+    background-color: #5c95ce81;
+    color: #fff;
+    font-weight: bold;
+  }
+
 /**
 Carta
 */
-.card-product-list img {
-    max-width: 200px !important;
-}
-
 .card-product-list {
     text-align: center;
     text-wrap: wrap;
     transition: 0.5s;
     cursor: pointer;
     color: #9AA6B2;
+    width: 18rem;;
 }
+.card-product-list img {
+    max-width: 18rem !important;
+}
+
 
 .card-product-list:hover {
     transition: 0.5s;
@@ -53,4 +89,28 @@ Carta
 -moz-box-shadow: 0px 6px 18px 0px rgba(173,173,173,1);
 box-shadow: 0px 6px 18px 0px rgba(173,173,173,1);
 color: #065db4;
+}
+
+
+/**
+Carta detalle */
+
+.contenedor-detalle img {
+width: 3in;
+}
+
+.contenedor-detalle {
+height: 100vh;
+}
+
+.card-ingredientes {
+    width: 8rem;
+}
+
+.card-ingredientes img {
+    width: 8rem;
+}
+
+.semi-titulo {
+    font-size: 18px;
 }
