@@ -1,5 +1,7 @@
 ESTAS SON LAS OBSERVACIONES QUE FUI TENIENDO DURANTE EL PROCESO DE CREACIÓN DEL PROYECTO:
 
+- Instrucciones para ejecutar el proyecto: Las técnologias usadas son: Vite y Npm, una vez descagado el proyecto, abrir la consola dentro de la carpeta del proyecto, y ejecutar npm-install, luego npm run dev.
+
 - Error en la ruta de iniciar sesión: Debido a que tuve un error de CORS en la ruta de: https://dummyjson.com/docs/auth, no pude usarla, por ende implementé el sistema de autenticación de Firebase. Todo el inicio de sesión, registro y cerrar sesión, se trabaja con Firebase. Una última cosa que noté, es que firebase, no me devuelve un usuario cuando se trabaja con el sistema de autenticación de correo y contraseña, solo me devuelve el email, por ende solo muestro el email en el perfil.
 
 - Problema de CORS y campos null: Con respecto a las de https://www.thecocktaildb.com/api.php, en algunas ocaciones me presentaba error de cors pero son contadas con la mano a diferencia de la ruta de https://dummyjson.com/docs/auth, que simplemente no me dejaba hace nada.
