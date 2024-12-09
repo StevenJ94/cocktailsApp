@@ -5,6 +5,7 @@ import Select from 'react-select';
 
 
 
+
 export const Filtros = ({arrayCategorias, arrayVasos, arraryIngredientes, arrayAlcohol}) => {
 
     const navigate = useNavigate();

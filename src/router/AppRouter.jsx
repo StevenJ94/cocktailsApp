@@ -57,7 +57,7 @@ export const AppRouter = () => {
           element={user ? <Home correoUsuario={user.email} nombreUsuario={user.displayName} /> : <Navigate to="/login" replace />}
         >
           <Route path='/' element={<Lista />} />
-          <Route path='detalles' element={<Detalles />} />
+          <Route path='detalles/:tipo/:nombre/:id' element={<Detalles />} />
         </Route>
         {/* Ruta para Login */}
         <Route

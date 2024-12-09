@@ -1,3 +1,6 @@
+/*
+Home
+*/
 .navbar {
     background-color: #BCCCDC;
     font-size: 16px;
@@ -10,4 +13,44 @@
     -webkit-box-shadow: 2px 0px 25px 1px rgba(168,168,168,1);
 -moz-box-shadow: 2px 0px 25px 1px rgba(168,168,168,1);
 box-shadow: 2px 0px 25px 1px rgba(168,168,168,1);
+}
+
+form .css-b62m3t-container {
+    min-width: 200px !important;
+}
+
+/**
+Lista
+*/
+.contenedor-padre {
+    max-height: 100vh;
+}
+
+.contenedor-lista {
+    overflow-y: auto;
+    max-height: 100vh;
+    margin-bottom: 40px;
+}
+
+/**
+Carta
+*/
+.card-product-list img {
+    max-width: 200px !important;
+}
+
+.card-product-list {
+    text-align: center;
+    text-wrap: wrap;
+    transition: 0.5s;
+    cursor: pointer;
+    color: #9AA6B2;
+}
+
+.card-product-list:hover {
+    transition: 0.5s;
+    -webkit-box-shadow: 0px 6px 18px 0px rgba(173,173,173,1);
+-moz-box-shadow: 0px 6px 18px 0px rgba(173,173,173,1);
+box-shadow: 0px 6px 18px 0px rgba(173,173,173,1);
+color: #065db4;
 }
