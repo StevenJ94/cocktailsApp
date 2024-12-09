@@ -96,21 +96,33 @@ color: #065db4;
 Carta detalle */
 
 .contenedor-detalle img {
-width: 3in;
+width: 4.5in;
 }
 
 .contenedor-detalle {
-height: 100vh;
+height: 100%
 }
 
 .card-ingredientes {
-    width: 8rem;
+    width: 14rem;
 }
 
 .card-ingredientes img {
-    width: 8rem;
+    width: auto;
 }
 
 .semi-titulo {
+    font-size: 24px;
+}
+.detalles-datos-text{
     font-size: 18px;
+}
+
+.ingredientes {
+    border-left: 1px solid #a8a8a8;
+}
+
+/* Lisa */
+.next, .previous {
+    display: none;
 }

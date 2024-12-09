@@ -69,6 +69,11 @@ export const Home = ({correoUsuario}) => {
     </button>
     <div className="collapse navbar-collapse" id="navbarSupportedContent">
       <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+        <li className="nav-item">
+          <button className='btn bg-transparent' onClick={() => {navigate('')}}>
+          Inicio
+          </button>
+       </li>
         <li className="nav-item dropdown">
           <a className="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Perfil

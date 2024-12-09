@@ -10,14 +10,34 @@ import { CardProduct } from '../components/cardProduct';
 
 
 export const Lista = () => {
-  let initNoRepeat = 0
-
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [currentItems, setCurrentItems] = useState([]);
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
-  const itemsPerPage = 4; // Definimos items por página
+  const [itemsPerPage, setItemsPerPage] = useState(4); // Valor por defecto
+
+  const updateItemsPerPage = () => {
+    if (window.matchMedia('(max-width: 576px)').matches) {
+      // Para pantallas móviles (por debajo de 576px)
+      setItemsPerPage(1);
+    } else if (window.matchMedia('(min-width: 577px) and (max-width: 768px)').matches) {
+      // Para tablets (576px a 768px)
+      setItemsPerPage(4);
+      
+    } else if (window.matchMedia('(min-width: 769px) and (max-width: 1200px)').matches) {
+      // Para laptops (769px a 1200px)
+      setItemsPerPage(6);
+    } 
+  };
+
+  useEffect(() => {
+    updateItemsPerPage(); // Actualiza al cargar la página
+    window.addEventListener('resize', updateItemsPerPage); // Actualiza al redimensionar
+    return () => {
+      window.removeEventListener('resize', updateItemsPerPage); // Limpieza del evento
+    };
+  }, [itemOffset, itemsPerPage]);
 
   /**
    * Variable para guardar el listado de datos filtrados
@@ -57,7 +77,7 @@ useEffect(() => {
 }, [categoria, vaso, ingrediente, alcohol]);
 
   /**
-   * Paginar
+   * función de la paginación
    */
   useEffect(() => {
     if (listDatosFiltrados && listDatosFiltrados.length > 0) {
@@ -111,26 +131,46 @@ useEffect(() => {
       const ingredientRequests = Array.from({ length: 8 }, () =>
       axiosInstance.get(`lookup.php?iid=${Math.floor(Math.random() * 50)}`)
       );
-      const cocktailResponses = await Promise.all(cocktailRequests);
-      const ingredientResponses = await Promise.all(ingredientRequests);
+      const cocktailResponses = await Promise.all(cocktailRequests)
+      const ingredientResponses = await Promise.all(ingredientRequests)
       await enviarDatosLista(cocktailResponses, ingredientResponses)
     } catch (err) {
       setError(err.message);
     } finally {
+
     }
   };
 
+  /**
+   * Función que hace la validación y organiza el array de los elementos aleatorios y populares
+   */
   const enviarDatosLista = async (_cocktailResponses, _ingredientResponses) => {
     console.log(_cocktailResponses);
     console.log(_ingredientResponses);
-    const arrayCocktailsPopular = await _cocktailResponses.slice(0, 4).map((res) => res.data.drinks[0]);
-    const arrayCocktailsRandom = await _cocktailResponses.slice(4).map((res) => res.data.drinks[0]);
-    const arrayIngredientPopular = await _ingredientResponses.slice(0, 4).map((res) => res.data.ingredients[0]);
-    const arrayIngredientRandom = await _ingredientResponses.slice(4).map((res) => res.data.ingredients[0]);
-    setlistPopularsCocktails(arrayCocktailsPopular);
-    setlistRandomsCocktails(arrayCocktailsRandom);
-    setlistPopularsIngredients(arrayIngredientPopular);
-    setlistRandomsIngredients(arrayIngredientRandom);
+    // Utilizo este try porque hay veces que el ingrediente que viene es null, por ende afecta el comportamiento de la carga de datos, esta validación solucciona esto pero quita ese elemento del array
+    try {
+      const arrayCocktailsPopular = await Promise.all(
+        _cocktailResponses.slice(0, 4).map((res) => res?.data?.drinks?.[0] || null)
+      );
+      const arrayCocktailsRandom = await Promise.all(
+        _cocktailResponses.slice(4).map((res) => res?.data?.drinks?.[0] || null)
+      );
+      const arrayIngredientPopular = await Promise.all(
+        _ingredientResponses.slice(0, 4).map((res) => res?.data?.ingredients?.[0] || null)
+      );
+      const arrayIngredientRandom = await Promise.all(
+        _ingredientResponses.slice(4).map((res) => res?.data?.ingredients?.[0] || null)
+      );
+        
+      // Filtrar valores nulos o inválidos
+      setlistPopularsCocktails(arrayCocktailsPopular.filter(Boolean));
+      setlistRandomsCocktails(arrayCocktailsRandom.filter(Boolean));
+      setlistPopularsIngredients(arrayIngredientPopular.filter(Boolean));
+      setlistRandomsIngredients(arrayIngredientRandom.filter(Boolean));
+    } catch (error) {
+      console.error('Error procesando los datos:', error);
+      setError('Hubo un problema al procesar los datos.');
+    }
   }
 
  /**
@@ -148,8 +188,9 @@ useEffect(() => {
     }
 }
 
-
-
+/**
+ * al inicializar la vista, se cargan estos datos
+ */
 useEffect(() => {
   getArrayFiltros();
   getDataCocktails();
@@ -159,10 +200,6 @@ useEffect(() => {
  Escuchar cambios en listPopularsCocktails 
 */
 useEffect(() => {
-  // console.log(listPopularsCocktails);
-  // console.log(listRandomsCocktails);
-  // console.log(listPopularsIngredients);
-  // console.log(listRandomsIngredients);
   if (
     listPopularsCocktails &&
     listRandomsCocktails &&
@@ -215,16 +252,19 @@ if (loading) {
             </div>
           ))}
           { listDatosFiltrados.length > 0 &&
-                <ReactPaginate
-          breakLabel="..."
-          nextLabel="Siguiente >"
-          onPageChange={handlePageClick}
-          pageRangeDisplayed={4}
-          pageCount={pageCount}
-          previousLabel="< Anterior"
-          renderOnZeroPageCount={null}
-          className='estilos-paginacion'
-        />
+     
+            <ReactPaginate
+    
+            breakLabel={null}
+            nextLabel={null}
+      onPageChange={handlePageClick}
+      pageRangeDisplayed={4}
+      pageCount={pageCount}
+      previousLabel={null}
+      renderOnZeroPageCount={null}
+      className='estilos-paginacion'
+    />
+  
           }
           {
             listDatosFiltrados.length == 0 &&
