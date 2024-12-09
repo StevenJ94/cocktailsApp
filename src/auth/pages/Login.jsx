@@ -53,8 +53,12 @@ const handleSubmit = async (e) => {
     // Si session es false, quiere decir que será registro de usuario
     if (!session) {
       await createUserWithEmailAndPassword(auth, email, password)
-    } else {      
-      await signInWithEmailAndPassword(auth, email, password)
+    } else {
+      try {
+        await signInWithEmailAndPassword(auth, email, password)        
+      } catch (error) {
+        alert('Hubo un error, verifique que los datos ingresados estén correctos')
+      }      
     }
   } catch (error) {
     console.error('Error:', error);
@@ -71,7 +75,7 @@ const handleSubmit = async (e) => {
           <img src={logo} alt="" width={300}/>
         </div>
         <h1>
-          {session ? 'Inicia sesión' : 'Registrarme'}
+          {session ? 'Inicia sesión' : 'Registrate'}
           
         </h1>
   <form className='form-group d-flex flex-column w-md-50 w-75'  onSubmit={handleSubmit}>
